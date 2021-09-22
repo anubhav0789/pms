@@ -15,13 +15,17 @@ if (typeof localStorage === "undefined" || localStorage === null) {
 
 //middlware to check User is login or not
 function checkLoginUser(req,res,next){
-    var userToken=localStorage.getItem('userToken');
-    try {
+  var userToken=localStorage.getItem('userToken');
+  try {
+    if(req.session.userName){
       var decoded = jwt.verify(userToken, 'loginToken');
-    } catch(err) {
+    }else{
       res.redirect('/');
     }
-    next();
+  } catch(err) {
+    res.redirect('/');
+  }
+  next();
 }
 
 //middlware to check email
@@ -52,7 +56,7 @@ function checkusername(req, res, next){
 
 /* GET dashboard page. */
 router.get('/',checkLoginUser, function(req, res, next) {
-    var loginUser=localStorage.getItem('loginUser');
+    var loginUser=req.session.userName;
     if(loginUser){
       res.render('dashboard', { title: 'Password Management System', msg:'', loginUser : loginUser });
     }else{

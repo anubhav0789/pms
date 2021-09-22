@@ -17,7 +17,11 @@ if (typeof localStorage === "undefined" || localStorage === null) {
 function checkLoginUser(req,res,next){
     var userToken=localStorage.getItem('userToken');
     try {
-      var decoded = jwt.verify(userToken, 'loginToken');
+      if(req.session.userName){
+        var decoded = jwt.verify(userToken, 'loginToken');
+      }else{
+        res.redirect('/');
+      }
     } catch(err) {
       res.redirect('/');
     }
@@ -52,7 +56,7 @@ function checkusername(req, res, next){
 
 /* Start add-new-category page. */
 router.get('/', checkLoginUser, function(req, res, next) {
-    var loginUser=localStorage.getItem('loginUser');
+    var loginUser= req.session.userName;
     if(loginUser){
       res.render('addNewCategory', { title: 'Password Management System', msg:'', loginUser : loginUser, pageTitle : 'Password Category Lists',errors:'',success:''  });
     }else{
@@ -61,7 +65,7 @@ router.get('/', checkLoginUser, function(req, res, next) {
 });
   
 router.post('/',checkLoginUser, [ check('passwordCategory','Enter Password Category Name').isLength({ min: 1 })],function(req, res, next) {
-    var loginUser=localStorage.getItem('loginUser');
+    var loginUser=req.session.userName;
     const errors = validationResult(req);
     if(!errors.isEmpty()){
       res.render('addNewCategory', { title: 'Password Management System',loginUser: loginUser, errors:errors.mapped(),success:'' });

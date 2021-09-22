@@ -15,13 +15,17 @@ if (typeof localStorage === "undefined" || localStorage === null) {
 
 //middlware to check User is login or not
 function checkLoginUser(req,res,next){
-    var userToken=localStorage.getItem('userToken');
-    try {
+  var userToken=localStorage.getItem('userToken');
+  try {
+    if(req.session.userName){
       var decoded = jwt.verify(userToken, 'loginToken');
-    } catch(err) {
+    }else{
       res.redirect('/');
     }
-    next();
+  } catch(err) {
+    res.redirect('/');
+  }
+  next();
 }
 
 //middlware to check email
@@ -56,7 +60,7 @@ router.get('/', checkLoginUser, function(req, res, next) {
   });
   
   router.get('/edit/:id', checkLoginUser, function(req, res, next) {
-    var loginUser=localStorage.getItem('loginUser');
+    var loginUser=req.session.userName;
     var id=req.params.id;
     if(loginUser){
       var id=req.params.id;
@@ -74,7 +78,7 @@ router.get('/', checkLoginUser, function(req, res, next) {
   });
   
   router.post('/edit/:id', checkLoginUser,[ check('project_name','Enter Project Name').isLength({ min: 1 })], function(req, res, next) {
-    var loginUser=localStorage.getItem('loginUser');
+    var loginUser=req.session.userName;
     
     if(loginUser){
       const errors = validationResult(req);
@@ -117,7 +121,7 @@ router.get('/', checkLoginUser, function(req, res, next) {
   
   
   router.get('/delete/:id',checkLoginUser, function(req, res, next) {
-    var loginUser=localStorage.getItem('loginUser');
+    var loginUser=req.session.userName;
     if(loginUser){
         var pass_id = req.params.id;
         //var passModel = passModel.find({});

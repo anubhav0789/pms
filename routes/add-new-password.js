@@ -15,13 +15,17 @@ if (typeof localStorage === "undefined" || localStorage === null) {
 
 //middlware to check User is login or not
 function checkLoginUser(req,res,next){
-    var userToken=localStorage.getItem('userToken');
-    try {
+  var userToken=localStorage.getItem('userToken');
+  try {
+    if(req.session.userName){
       var decoded = jwt.verify(userToken, 'loginToken');
-    } catch(err) {
+    }else{
       res.redirect('/');
     }
-    next();
+  } catch(err) {
+    res.redirect('/');
+  }
+  next();
 }
 
 //middlware to check email
@@ -52,7 +56,7 @@ function checkusername(req, res, next){
 
 /* Start add-new-password page. */
 router.get('/', checkLoginUser, function(req, res, next) {
-    var loginUser=localStorage.getItem('loginUser');
+    var loginUser=req.session.userName;
     if(loginUser){
         var getPassCat = passCatModel.find({});
         getPassCat.exec((err, data)=>{
@@ -65,7 +69,7 @@ router.get('/', checkLoginUser, function(req, res, next) {
   });
   
 router.post('/', checkLoginUser,[ check('project_name','Enter Project Name').isLength({ min: 1 })], function(req, res, next) {
-    var loginUser=localStorage.getItem('loginUser');
+    var loginUser=req.session.userName;
     const errors = validationResult(req);
     if(!errors.isEmpty()){
         var getPassCat = passCatModel.find({});

@@ -40,7 +40,7 @@ function checkemail(req, res, next){
 /* GET login page. */
 router.get('/', function(req, res, next) {
   var loginUser=localStorage.getItem('loginUser');
-  if(loginUser){
+  if(req.session.userName){
     res.redirect('./dashboard');
   }else{
     res.render('index', { title: 'Password Management System', msg:'' });
@@ -62,6 +62,7 @@ router.post('/', function(req, res, next) {
         var token = jwt.sign({ userID: getUserID }, 'loginToken');
         localStorage.setItem('userToken', token);
         localStorage.setItem('loginUser', username);
+        req.session.userName = username;
         res.redirect('/dashboard');
       }else{
         res.render('index', { title: 'Password Management System', msg:"Invalid Username and Password." });
@@ -92,7 +93,7 @@ function checkusername(req, res, next){
 /* GET signup page. */
 router.get('/signup', function(req, res, next) {
   var loginUser=localStorage.getItem('loginUser');
-  if(loginUser){
+  if(req.session.userNamer){
     res.redirect('./dashboard');
   }else{
     res.render('signup', { title: 'Password Management System', msg: '' });
